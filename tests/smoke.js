@@ -17,7 +17,7 @@ let proc = null; let passed = 0;
 
 const start = () => new Promise((res, rej) => {
   proc = spawn(process.execPath, [path.join(__dirname, '..', 'server.js')], { env: ENV, stdio: ['ignore', 'pipe', 'pipe'] });
-  let out = ''; proc.stdout.on('data', d => { out += d; if (out.includes('AC711 Cloud:')) res(); }); proc.stderr.on('data', d => { const s = String(d); if (!/ExperimentalWarning|trace-warnings/.test(s)) process.stderr.write(s); });
+  let out = ''; proc.stdout.on('data', d => { out += d; if (/Cloud: http/.test(out)) res(); }); proc.stderr.on('data', d => { const s = String(d); if (!/ExperimentalWarning|trace-warnings/.test(s)) process.stderr.write(s); });
   proc.on('exit', c => { if (c) rej(new Error('server exited ' + c)); });
   setTimeout(() => rej(new Error('server start timeout')), 20000);
 });
