@@ -16,7 +16,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: NODE_VERSION
-        value: 22.12.0
+        value: 22.22.2
       - key: TRUST_PROXY
         value: "1"
       - key: BASE_URL
