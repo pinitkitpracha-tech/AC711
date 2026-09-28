@@ -1,0 +1,8 @@
+# สร้างใหม่ทุกครั้งด้วย npm run build (จาก ac711.html)
+build/
+public/
+# ข้อมูลจริงของร้านค้า (SQLite + รูปอัปโหลด) — สำรองแยกต่างหาก ห้าม commit
+data/
+node_modules/
+.env
+*.log

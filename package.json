@@ -1,0 +1,25 @@
+{
+  "name": "ac711-cloud",
+  "version": "1.0.0",
+  "description": "AC711 — ระบบบริหารร้านอะไหล่รถยนต์และสาขาบนคลาวด์ (เซิร์ฟเวอร์หลายร้าน)",
+  "main": "server.js",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "start": "node server.js",
+    "dev": "node scripts/build.js && node --watch server.js",
+    "test": "node scripts/build.js && node tests/smoke.js"
+  },
+  "engines": {
+    "node": ">=22.5"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.2.0",
+    "nodemailer": "^7.0.5",
+    "@anthropic-ai/sdk": "^0.80.0"
+  }
+}

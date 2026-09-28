@@ -1,0 +1,49 @@
+# render.yaml — Blueprint สำหรับ deploy AC711 Cloud ขึ้น Render
+# วิธีใช้: Render Dashboard → New → Blueprint → เลือก repo นี้ → Apply
+# ต้องใช้แผน Starter ขึ้นไป (มี Persistent Disk) — แผนฟรีข้อมูลจะหายเมื่อ redeploy
+services:
+  - type: web
+    name: ac711
+    runtime: node
+    plan: starter
+    region: singapore
+    branch: main
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22.12.0
+      - key: TRUST_PROXY
+        value: "1"
+      - key: BASE_URL
+        value: https://www.ac711.com   # ใช้สร้างลิงก์ในอีเมล — ถ้าโดเมนยังไม่พร้อม ใส่ URL ของ Render ชั่วคราว
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_USER
+        value: admin
+      - key: ADMIN_PASSWORD
+        sync: false           # ** ตั้งเองตอน Apply ** รหัสผ่าน Admin Console (≥ 8 ตัว)
+      - key: DATA_DIR
+        value: /var/data
+      - key: SMTP_HOST
+        sync: false           # เช่น smtp.gmail.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_SECURE
+        value: "false"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: MAIL_FROM
+        value: "AC711 <no-reply@ac711.com>"
+      - key: ANTHROPIC_API_KEY
+        sync: false           # ไม่บังคับ: ใส่แล้วผู้ช่วย AI ใช้ Claude จริง
+    disk:
+      name: ac711-data
+      mountPath: /var/data
+      sizeGB: 5
