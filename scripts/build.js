@@ -60,6 +60,8 @@ fs.writeFileSync(path.join(ROOT, 'build', 'tenant-api.js'), wrapped);
 /* ---------- 2) public/index.html ---------- */
 let web = html.slice(0, last.start) + '<script>App.boot();</script>' + html.slice(last.end);
 web = web.replace('<script>', '<script>window.AC711_SERVER = true;</script>\n<script>');
+// ป้าย "โหมดทดลองใช้" มีไว้สำหรับไฟล์เดี่ยวเท่านั้น
+web = web.replace(/<div class="demo-tag">[^<]*<\/div>/, '');
 fs.mkdirSync(path.join(ROOT, 'public'), { recursive: true });
 fs.writeFileSync(path.join(ROOT, 'public', 'index.html'), web);
 
