@@ -648,7 +648,7 @@ const PAGE_TABS = {
 };
 const Pages = {};
 /* ===================== AC711 Cloud — เว็บไซต์ www.ac711.com / เข้าสู่ระบบ / สมัครทดลองใช้ฟรี 30 วัน ===================== */
-const PLAN = { name: 'AC711 Cloud รายปี', price: 18000, vat: 7, trial_days: 30, site: 'www.ac711.com', sales_email: 'sales@ac711.com', privacy_version: '1.0', privacy_date: '5 กันยายน 2569', controller: '[ชื่อนิติบุคคลผู้ให้บริการ AC711]', dpo_email: '[อีเมลเจ้าหน้าที่คุ้มครองข้อมูลส่วนบุคคล]', address: '[ที่อยู่ผู้ให้บริการ]' };
+const PLAN = { name: 'AC711 Cloud รายปี', price: 18000, vat: 7, trial_days: 30, site: 'www.ac711.com', sales_email: 'sale@ac711.com', privacy_version: '1.0', privacy_date: '5 กันยายน 2569', controller: '[ชื่อนิติบุคคลผู้ให้บริการ AC711]', dpo_email: '[อีเมลเจ้าหน้าที่คุ้มครองข้อมูลส่วนบุคคล]', address: '[ที่อยู่ผู้ให้บริการ]' };
 const Site = {
   KEY: 'ac711_accounts',
   accounts() { try { return JSON.parse(localStorage.getItem(Site.KEY) || '[]'); } catch { return []; } },
@@ -808,7 +808,7 @@ const Site = {
 
 /* ===================== เนื้อหาเว็บไซต์ (แก้ได้จาก Admin Console) ===================== */
 const SITE_DEFAULTS = {
-  brand: 'AC711', site: 'www.ac711.com', sales_email: 'sales@ac711.com',
+  brand: 'AC711', site: 'www.ac711.com', sales_email: 'sale@ac711.com',
   nav_login: 'เข้าสู่ระบบ', nav_signup: 'สมัครใช้บริการ',
   hero_badge: 'ระบบบริหารร้านอะไหล่รถยนต์บนคลาวด์', hero_title: 'ขาย จัดสต็อก ดูบัญชี', hero_em: 'ทุกสาขา', hero_title2: 'ในระบบเดียว',
   hero_lead: 'AC711 คือระบบบริหารร้านอะไหล่รถยนต์และสาขาที่รวม POS สต็อกหลายสาขา ออเดอร์ออนไลน์ บัญชี เงินเดือน และ AI ไว้ในที่เดียว เปิดใช้ได้ทันทีจากเว็บเบราว์เซอร์ ไม่ต้องติดตั้งโปรแกรม',

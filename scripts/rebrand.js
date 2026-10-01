@@ -19,7 +19,7 @@ for (const f of FILES) {
   const rep = (re, to) => { s = s.replace(re, m => { n++; return typeof to === 'function' ? to(m) : to; }); };
   rep(/www\.ac711\.com/g, DOMAIN);                                   // โดเมนเต็ม
   rep(/https:\/\/ac711\.com/g, 'https://' + BARE);                     // root domain ใน URL
-  rep(/sales@ac711\.com/g, EMAIL);                                     // อีเมลฝ่ายขาย
+  rep(/sale@ac711\.com/g, EMAIL);                                     // อีเมลฝ่ายขาย
   rep(/no-reply@ac711\.com/g, 'no-reply@' + BARE);                     // ผู้ส่งอีเมล
   rep(/demo@ac711\.com/g, 'demo@' + BARE);                             // อีเมลร้านสาธิต
   rep(/@ac711autoparts/g, '@' + BARE.split('.')[0]);                   // LINE id ตัวอย่าง
