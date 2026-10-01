@@ -35,7 +35,8 @@ const verify = (pw, h) => { if (!h) return false; if (String(h).startsWith('$2')
 /* ---------- เนื้อหาเว็บไซต์ / แพ็กเกจ ---------- */
 const SITE_DEFAULTS = require('./site-defaults.json');
 function site() { const r = db.prepare('SELECT json FROM site WHERE key = ?').get('main'); let o = {}; try { o = r ? JSON.parse(r.json) : {}; } catch {} return { ...SITE_DEFAULTS, ...o }; }
-function saveSite(o) { db.prepare('INSERT INTO site (key, json) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET json = excluded.json').run('main', JSON.stringify(o)); }
+/* เก็บเฉพาะค่าที่ต่างจาก site-defaults.json → เปลี่ยนค่าเริ่มต้นในโค้ด (เช่น อีเมลฝ่ายขาย) แล้วมีผลทันทีโดยไม่ถูกค่าเก่าในฐานข้อมูลทับ */
+function saveSite(o) { const diff = {}; for (const [k, v] of Object.entries(o || {})) { if (JSON.stringify(v) !== JSON.stringify(SITE_DEFAULTS[k])) diff[k] = v; } db.prepare('INSERT INTO site (key, json) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET json = excluded.json').run('main', JSON.stringify(diff)); }
 const priceVat = c => Math.round((+c.price || 18000) * (1 + (+c.vat || 7) / 100));
 
 /* ---------- สถานะแพ็กเกจของผู้เช่า ---------- */
