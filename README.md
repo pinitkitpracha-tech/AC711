@@ -91,5 +91,5 @@ src/cron.js          เตือนหมดอายุ, ลบผู้สม
 src/ai.js            ผู้ช่วย AI ผ่าน Claude
 src/site-defaults.json  เนื้อหาเว็บไซต์เริ่มต้น (แก้ได้จาก Admin Console)
 tests/smoke.js       ชุดทดสอบครบวงจร
-docs/                คู่มือผู้ใช้ (USER-GUIDE.md) และแนวทางระบบ (AC711-CLOUD.md)
+docs/                คู่มือผู้ใช้ฉบับเต็ม PDF (AC711-Manual-1.0.26.pdf) คู่มือย่อ (USER-GUIDE.md) และแนวทางระบบ (AC711-CLOUD.md)
 ```

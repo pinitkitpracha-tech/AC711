@@ -59,7 +59,7 @@ img{max-width:100%;display:block}
 .userchip{display:flex;align-items:center;gap:0.5333rem;height:2.6667rem;padding:0 0.6667rem 0 0.2667rem;border:1px solid var(--line);border-radius:0.8rem;background:var(--panel);cursor:pointer;max-width:14.6667rem}
 .userchip .av{width:2rem;height:2rem;border-radius:0.6rem;background:var(--amber);color:var(--amber-ink);display:grid;place-items:center;font-weight:800;font-size:0.8667rem;flex:none}
 .userchip .t{min-width:0}.userchip b{display:block;font-size:0.8667rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}.userchip span{font-size:0.7333rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-.side{position:sticky;top:var(--top);height:calc(100vh - var(--top));overflow-y:auto;background:#ffffff;border-right:1px solid var(--line);padding:0.8rem 0.6667rem 1.3333rem}
+.side{position:sticky;top:var(--top);height:calc(100vh - var(--top));overflow-y:auto;background:#ffffff;border-right:1px solid var(--line);padding:0.8rem 0.6667rem 1.3333rem}.side .ver{padding:0.9rem 0.8rem 0;font-size:0.7rem;color:var(--muted);letter-spacing:.04em}
 .side .grp{font-size:0.7333rem;letter-spacing:.14em;color:var(--dim);text-transform:uppercase;padding:0.9333rem 0.8rem 0.4rem;font-weight:700}
 .side a{display:flex;align-items:center;gap:0.7333rem;height:2.9333rem;padding:0 0.8rem;border-radius:0.7333rem;color:var(--muted);font-weight:500;font-size:0.9333rem;white-space:nowrap;overflow:hidden}
 .side a .ic{width:1.6rem;text-align:center;font-size:1.1333rem;flex:none}.side a .lb{overflow:hidden;text-overflow:ellipsis}
@@ -672,6 +672,7 @@ const PAGE_TABS = {
 };
 const Pages = {};
 /* ===================== AC711 Cloud — เว็บไซต์ www.ac711.com / เข้าสู่ระบบ / สมัครทดลองใช้ฟรี 30 วัน ===================== */
+const APP_VERSION = '1.0.26';
 const PLAN = { name: 'AC711 Cloud รายปี', price: 18000, vat: 7, trial_days: 30, site: 'www.ac711.com', sales_email: 'sale@ac711.com', privacy_version: '1.0', privacy_date: '5 กันยายน 2569', controller: '[ชื่อนิติบุคคลผู้ให้บริการ AC711]', dpo_email: '[อีเมลเจ้าหน้าที่คุ้มครองข้อมูลส่วนบุคคล]', address: '[ที่อยู่ผู้ให้บริการ]' };
 const Site = {
   KEY: 'ac711_accounts',
@@ -1232,7 +1233,7 @@ const App = {
     const items = NAV.map(n => n.g ? `<div class="grp">${esc(n.g)}</div>` : App.can(n.id) ? `<a href="#/${n.id}" data-p="${n.id}"><span class="ic">${n.ic}</span><span class="lb">${esc(n.l)}</span>${n.cnt ? `<span class="cnt" data-cnt="${n.cnt}" hidden></span>` : ''}</a>` : '').join('');
     const brOpts = App.user.all_branches ? `<select class="branch-pick" id="brpick"><option value="0">🏢 ทุกสาขา (ส่วนกลาง)</option>${App.branches.map(b => `<option value="${b.id}" ${b.id === App.branch ? 'selected' : ''}>${esc(b.name)}</option>`).join('')}</select>` : `<span class="pill amber" style="height:2.4rem;font-size:0.8667rem">📍 ${esc(App.user.branch?.name || '')}</span>`;
     $('#root').innerHTML = `<div class="shell"><header class="topbar"><div class="brand"><div class="mark">711</div><b>AC711</b></div><div class="grow"></div>${Site.trialChip()}${brOpts}<button class="iconbtn" id="bell" title="แจ้งเตือน">🔔<span class="n" id="belln" hidden></span></button><div class="userchip" id="uchip"><div class="av">${esc(App.user.name.slice(0, 1))}</div><div class="t"><b>${esc(App.user.name)}</b><span>${esc(App.user.role_label)}</span></div></div></header>
-      <nav class="side" id="side">${items}</nav><main class="main" id="main"></main>
+      <nav class="side" id="side">${items}<div class="ver">AC711 v${APP_VERSION}</div></nav><main class="main" id="main"></main>
       <nav class="bottomnav" id="bnav">${MOBILE_NAV.filter(App.can).map(id => { const n = NAV.find(x => x.id === id); return `<a href="#/${id}" data-p="${id}"><span class="ic">${n.ic}</span>${esc(n.l.split(' ')[0])}${n.cnt ? `<span class="cnt" data-cnt="${n.cnt}" hidden></span>` : ''}</a>`; }).join('')}<a href="#menu" id="moreb"><span class="ic">☰</span>เมนู</a></nav>
       <div class="sheet" id="sheet"><div class="in"><div class="flex between mb"><b>เมนูทั้งหมด</b><button class="btn sm ghost" id="sheetx">ปิด</button></div><div class="grid">${NAV.filter(n => !n.g && App.can(n.id)).map(n => `<a href="#/${n.id}" data-p="${n.id}"><span class="ic">${n.ic}</span><span>${esc(n.l)}</span></a>`).join('')}</div><div class="mt"><button class="btn block" id="sheetout">ออกจากระบบ</button></div></div></div></div>`;
     const bp = $('#brpick'); if (bp) bp.onchange = () => { App.branch = +bp.value; localStorage.setItem('ac711_branch', App.branch); App.route(); };
