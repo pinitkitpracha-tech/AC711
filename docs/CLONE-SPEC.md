@@ -83,6 +83,14 @@ git add -A && git commit -m "New brand" && git remote add origin https://github.
 - บทบาทใหม่ technician (ช่างซ่อม); สิทธิ์เมนู jobs/crm เพิ่มให้ cashier, branch_manager, accountant, marketing; ตัวนับบนเมนู jobsOpen/crmDue; SSE event job/crm; audit ทุกการเปลี่ยนแปลง (job.*, crm.*, vehicle.*)
 - ตั้งค่า → ร้าน: การ์ด "อู่ซ่อมรถ / งานบริการ และ CRM" (garage_warranty_terms, garage_labor_presets, crm_followup_days, crm_reminder_days)
 
+### B9. งานรับประกัน / เคลม และกฎ VIN-เลขไมล์
+- ตาราง claims: code WC…, job_id/sale_id ต้นทาง, customer/vehicle, mileage_in, reported, diagnosis, decision (warranty|goodwill), items (part/labor/other พร้อม cost, to_supplier, lot_alloc), status open → approved|rejected → working → done | pending_close (รอผู้จัดการอนุมัติผ่านระบบอนุมัติ doc_type claim) | cancelled, supplier {supplier_id, status none|sent|accepted|rejected|closed, ref, result credit|replace, credit_amount, entry_id}, cost_parts/cost_labor, entry_id, quote_id, history
+- warrantyCheck(job, mileage) จาก billed_at + ตั้งค่า garage_warranty_months / garage_warranty_km → in_warranty, days_left, km_left แสดงในฟอร์ม รายละเอียด และใบรับงานเคลม
+- ปิดงาน: issue() ประเภท warranty ตัดสต็อก, AC711_FIN.postClaim → Dr 5130 ค่าใช้จ่ายงานรับประกัน (ensureAccount สร้างให้ร้านเก่าอัตโนมัติ) / Cr 1140; เครดิตผู้จำหน่าย: postClaimCredit → Dr 2110 (partner supplier) / Cr 5130 + แถว ap สถานะ credit ยอดติดลบ; CRM ติดตามหลังเคลมอัตโนมัติ; ไม่รับเคลม → /claims/:id/to-quote สร้างใบเสนอราคาราคาขาย
+- พิมพ์ A4: ใบรับงานรับประกัน (มูลค่าลูกค้าชำระ 0) และใบส่งเคลมผู้จำหน่าย (ล็อต ต้นทุน อาการเสีย)
+- กฎข้อมูลรถ: เพิ่มรถต้องมี VIN; ใบเสนอราคา/ใบรับรถ/งานเคลมต้องมีเลขไมล์ และรถต้องมี VIN; VIN + เลขไมล์พิมพ์บนใบเสนอราคา ใบรับรถ ใบเสร็จ (ย่อ/A4) และใบรับงานเคลม
+- เมนู claims (แท็บ open/all/supplier) ตัวนับ claimsOpen, SSE claim, สิทธิ์เพิ่มให้บทบาทเดียวกับ jobs, ส่งออก CSV ตาราง claims, ประเภทการเคลื่อนไหวสต็อก warranty
+
 ### B7. ข้อจำกัดที่รับทราบ
 - LINE / Facebook / Shopee / Lazada / TikTok เป็นการจำลอง ยังไม่เชื่อม API จริง
 - เครื่องพิมพ์ใบเสร็จผ่านการพิมพ์ของเบราว์เซอร์ ไม่เชื่อมลิ้นชักเงินสด
