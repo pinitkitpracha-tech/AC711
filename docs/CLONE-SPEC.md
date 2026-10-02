@@ -75,6 +75,14 @@ git add -A && git commit -m "New brand" && git remote add origin https://github.
 - ความปลอดภัย: อัปโหลดเฉพาะรูป, สิทธิ์จัดการพนักงานเฉพาะเจ้าของ/ผู้จัดการ, PIN ≥ 4 หลัก, แยกข้อมูลระหว่างร้าน, admin ค่าเริ่มต้นใช้ใน production ไม่ได้
 - ชุดทดสอบ `npm test` 62 ข้อ; deploy ด้วย `render.yaml` (Render) หรือ `Dockerfile`
 
+### B8. โหมดอู่ซ่อมรถ และ CRM (รอบเพิ่มเติม)
+- ลูกค้ามีรถได้หลายคัน (ตาราง vehicles: ทะเบียน จังหวัด ยี่ห้อ รุ่น ปี สี VIN เลขเครื่อง เลขไมล์) ค้นลูกค้าด้วยทะเบียนได้ นำเข้า CSV ได้ รถที่มีประวัติงานซ่อมซ่อนแทนลบ
+- เมนู "ใบเสนอราคา / ใบรับรถ" (ตาราง jobs เอกสารเดียวไหลตามสถานะ quote → approved → received (ออกเลข JO) → working → ready → billed | cancelled พร้อม history ต่อเอกสาร): รายการ 3 ประเภท อะไหล่ (ตัดสต็อกตอนออกบิล) ค่าแรง (รายการค่าแรงที่ใช้บ่อยตั้งค่าได้) อื่นๆ; VAT รวมในราคา; พิมพ์ใบเสนอราคาและใบรับรถ A4; บอร์ดงานในอู่ 3 ช่อง; ออกบิลผ่าน createSale() ร่วมกับ POS (รองรับรายการที่ไม่มี product_id) บิลผูก job_id/vehicle_id
+- ใบเสร็จของงานซ่อม (แบบย่อและใบกำกับภาษี A4) แสดงเลขใบรับรถ ทะเบียน เลขไมล์ ช่าง "เงื่อนไขการรับประกัน" (ค่าเริ่มต้นจากตั้งค่า แก้รายใบได้แม้ออกบิลแล้ว บันทึกประวัติ) และ "นัดหมายบริการครั้งต่อไป" (วันที่ และ/หรือ เลขไมล์)
+- เมนู "CRM ติดตามลูกค้า" (ตาราง crm: type call/line/visit/note/followup/reminder/quote_follow/complaint, due_at, assigned_to, done/done_by/outcome, log การแก้ไขต่อรายการ): แท็บ วันนี้ / งานติดตาม / ลูกค้า 360° (segment prospect/new/active/risk/lost จากวันที่ซื้อล่าสุด) / ประวัติการติดต่อ / สรุป; สร้างอัตโนมัติเมื่อออกบิลงานซ่อม: ติดตามหลังซ่อม (crm_followup_days) และเตือนนัดบริการ (crm_reminder_days ก่อนวันนัด) ซิงก์เมื่อแก้วันนัด; ปิดอัตโนมัติเมื่อยกเลิกงาน
+- บทบาทใหม่ technician (ช่างซ่อม); สิทธิ์เมนู jobs/crm เพิ่มให้ cashier, branch_manager, accountant, marketing; ตัวนับบนเมนู jobsOpen/crmDue; SSE event job/crm; audit ทุกการเปลี่ยนแปลง (job.*, crm.*, vehicle.*)
+- ตั้งค่า → ร้าน: การ์ด "อู่ซ่อมรถ / งานบริการ และ CRM" (garage_warranty_terms, garage_labor_presets, crm_followup_days, crm_reminder_days)
+
 ### B7. ข้อจำกัดที่รับทราบ
 - LINE / Facebook / Shopee / Lazada / TikTok เป็นการจำลอง ยังไม่เชื่อม API จริง
 - เครื่องพิมพ์ใบเสร็จผ่านการพิมพ์ของเบราว์เซอร์ ไม่เชื่อมลิ้นชักเงินสด
