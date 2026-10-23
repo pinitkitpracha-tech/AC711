@@ -49,6 +49,17 @@ const ok = (name, cond, extra = '') => { assert.ok(cond, name + (extra ? ' — '
     { const me0 = await api('GET', '/api/ac711/auth/me', null, tk); ok('new tenant defaults to THB', me0.d.currency === 'THB', JSON.stringify(me0.d.currency)); const pc = await api('PUT', '/api/ac711/settings', { currency: 'LAK' }, tk); const me1 = await api('GET', '/api/ac711/auth/me', null, tk); ok('store currency saved and returned by /auth/me', pc.status === 200 && me1.d.currency === 'LAK', JSON.stringify(me1.d.currency)); }
     const br = (await api('GET', '/api/ac711/branches', null, tk)).d; ok('fresh tenant: HQ + 1 branch + online', br.length === 3 && br[0].code === '0000');
     ok('fresh tenant has no products', (await api('GET', '/api/ac711/products', null, tk)).d.length === 0);
+    { const g = await api('POST', '/api/ac711/groups', { code: 'ENG', name: 'ระบบเครื่องยนต์' }, tk); ok('create main category', g.status === 200 && g.d.id > 0, JSON.stringify(g.d));
+      const c = await api('POST', '/api/ac711/categories', { code: 'ENG-OIL', name: 'น้ำมันเครื่อง', group_id: g.d.id }, tk); ok('create category under main category', c.status === 200 && c.d.id > 0, JSON.stringify(c.d));
+      const gl = await api('GET', '/api/ac711/groups', null, tk); ok('main category counts its categories', gl.d.some(x => x.id === g.d.id && x.n === 1), JSON.stringify(gl.d).slice(0, 200));
+      const b = await api('POST', '/api/ac711/brands', { name: 'Bosch', note: 'เยอรมนี' }, tk); ok('create brand', b.status === 200 && b.d.id > 0, JSON.stringify(b.d));
+      const dup = await api('POST', '/api/ac711/brands', { name: 'bosch' }, tk); ok('duplicate brand name returns existing', dup.d.exists === true && dup.d.id === b.d.id, JSON.stringify(dup.d));
+      const pr = await api('POST', '/api/ac711/products', { sku: 'TST-ENG-001', name: 'น้ำมันเครื่องทดสอบ', category_id: c.d.id, brand: 'Bosch', cost: 100, price_retail: 150, fitments: [], minmax: [] }, tk); ok('product created with brand', pr.status === 200, JSON.stringify(pr.d).slice(0, 120));
+      const pf = await api('GET', '/api/ac711/products?group_id=' + g.d.id, null, tk); ok('products filter by main category', pf.d.length === 1 && pf.d[0].sku === 'TST-ENG-001', JSON.stringify(pf.d.map(x => x.sku)));
+      const bl = await api('GET', '/api/ac711/brands', null, tk); ok('brand list counts products', bl.d.some(x => x.name === 'Bosch' && x.n === 1), JSON.stringify(bl.d).slice(0, 200));
+      ok('brand in use cannot be deleted', (await api('DELETE', '/api/ac711/brands/' + b.d.id, null, tk)).status >= 400);
+      ok('main category with categories cannot be deleted', (await api('DELETE', '/api/ac711/groups/' + g.d.id, null, tk)).status >= 400);
+      const rn = await api('PUT', '/api/ac711/brands/' + b.d.id, { name: 'Bosch Automotive' }, tk); const p2 = await api('GET', '/api/ac711/products?q=TST-ENG', null, tk); ok('renaming a brand updates its products', rn.status === 200 && p2.d[0] && p2.d[0].brand === 'Bosch Automotive', JSON.stringify(p2.d[0] && p2.d[0].brand)); }
     ok('fresh tenant forecast works', (await api('GET', '/api/ac711/forecast/top?limit=5', null, tk)).status === 200);
     ok('cannot see demo data across tenants', (await api('GET', '/api/ac711/sales?limit=5', null, tk)).d.length === 0);
     // product + stock + sale (partial)
@@ -104,11 +115,11 @@ const ok = (name, cond, extra = '') => { assert.ok(cond, name + (extra ? ' — '
     // restart → persistence
     await new Promise(r => setTimeout(r, 400)); await stop(); await start();
     const lg2 = await api('POST', '/api/ac711/auth/login', { username: email, password: pw }); ok('login after restart', lg2.status === 200); const tk2 = lg2.d.token;
-    ok('data persisted across restart (products, 2 sales, job + vehicle + CRM)', (await api('GET', '/api/ac711/products', null, tk2)).d.length === 1 && (await api('GET', '/api/ac711/sales?limit=5', null, tk2)).d.length === 2 && (await api('GET', '/api/ac711/jobs?status=billed', null, tk2)).d.length === 1 && (await api('GET', '/api/ac711/vehicles', null, tk2)).d.length === 1 && (await api('GET', '/api/ac711/crm/tasks?status=all', null, tk2)).d.length >= 3 && (await api('GET', '/api/ac711/claims', null, tk2)).d.length === 1);
+    ok('data persisted across restart (products, brands, main categories, 2 sales, job + vehicle + CRM)', (await api('GET', '/api/ac711/products', null, tk2)).d.length === 2 && (await api('GET', '/api/ac711/brands', null, tk2)).d.some(x => x.name === 'Bosch Automotive') && (await api('GET', '/api/ac711/groups', null, tk2)).d.some(x => x.code === 'ENG' && x.n === 1) && (await api('GET', '/api/ac711/sales?limit=5', null, tk2)).d.length === 2 && (await api('GET', '/api/ac711/jobs?status=billed', null, tk2)).d.length === 1 && (await api('GET', '/api/ac711/vehicles', null, tk2)).d.length === 1 && (await api('GET', '/api/ac711/crm/tasks?status=all', null, tk2)).d.length >= 3 && (await api('GET', '/api/ac711/claims', null, tk2)).d.length === 1);
     ok('staff persisted (login with code)', (await api('POST', '/api/ac711/auth/login', { username: 'pos1', password: 'pass1234', tenant: code })).status === 200);
     // restore from backup
     ok('reset all data', (await api('POST', '/api/ac711/settings/reset-demo', { scope: 'all' }, tk2)).status === 200 && (await api('GET', '/api/ac711/products', null, tk2)).d.length === 0);
-    const rs = await api('POST', '/api/ac711/settings/restore', backup, tk2); ok('restore from backup', rs.status === 200 && (await api('GET', '/api/ac711/products', null, tk2)).d.length === 1, JSON.stringify(rs.d));
+    const rs = await api('POST', '/api/ac711/settings/restore', backup, tk2); ok('restore from backup', rs.status === 200 && (await api('GET', '/api/ac711/products', null, tk2)).d.length === 2 && (await api('GET', '/api/ac711/brands', null, tk2)).d.some(x => x.name === 'Bosch Automotive'), JSON.stringify(rs.d));
     // admin
     const ad = await api('POST', '/api/platform/admin/login', { user: 'admin', password: 'admin711' }); ok('admin login', ad.status === 200); const at = ad.d.token;
     ok('admin login wrong password', (await api('POST', '/api/platform/admin/login', { user: 'admin', password: 'x' })).status === 401);

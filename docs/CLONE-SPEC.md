@@ -97,6 +97,11 @@ git add -A && git commit -m "New brand" && git remote add origin https://github.
 - CURRENCIES {THB ฿ บาท 0 ทศนิยม, LAK ₭ กีบ 0, USD $ ดอลลาร์ 2, CNY ¥ หยวน 2}; CUR/setCurrency; money() ฝั่งหน้าเว็บและ money()/CURI() ฝั่ง backend อ่าน settings.currency; GET /auth/me (ทั้ง mock และ server.js) คืน currency; ตั้งค่าที่ ตั้งค่า → ร้าน `#currency` (PUT /settings) และ setCurrency ทันทีหลังบันทึก; ป้ายราคาสินค้าในฟอร์มแสดงชื่อสกุลเงิน; PromptPay ที่ POS แสดงเฉพาะ THB; ข้อความ "บาท" ในแอป/การแจ้งเตือนใช้ CUR.name (ยกเว้นค่าบริการรายปี AC711)
 - CSS มือถือ (≤47.5em): .tile สูงอัตโนมัติ ข้อความในการ์ดสาขา/หัวการ์ด/หัวหน้าขึ้นบรรทัดใหม่แทน ellipsis; nav เว็บไซต์ ≤30em ซ่อนปุ่มเข้าสู่ระบบ (มีในส่วน hero)
 
+### B11. หมวดสินค้าหลักและยี่ห้อสินค้า (ตารางที่ผู้ใช้จัดการเอง)
+- ตาราง groups {code, name, sort} และ brands {name, note}; categories.group_id; products.brand ยังเป็นข้อความ (ชื่อยี่ห้อ) เพื่อให้ตัวกรอง/CSV/รายงานเดิมใช้ได้
+- routes: GET/POST/PUT/DELETE /groups (ลบไม่ได้ถ้ามีหมวดสังกัด), GET/POST/PUT/DELETE /brands (POST ชื่อซ้ำคืนรายการเดิม exists:true, PUT เปลี่ยนชื่อ cascade ไป products.brand, DELETE ไม่ได้ถ้ามีสินค้าใช้), GET /categories คืน group_name, GET /products รับ group_id, POST/PUT /products เรียก addBrand() ให้ยี่ห้อใหม่เข้ารายการอัตโนมัติ; ensureMaster() สร้าง brands จากสินค้าเดิมเมื่อตารางว่าง (ร้านเก่า)
+- UI: ตั้งค่า → หมวดสินค้า (การ์ดหมวดหลัก + คอลัมน์หมวดหลักในตารางหมวด), แท็บใหม่ ตั้งค่า → ยี่ห้อสินค้า (PAGE_TABS/page-tabs.json 'brands'); ฟอร์มสินค้า: select หมวดหลัก → กรองหมวด, select ยี่ห้อ + "เพิ่มยี่ห้อใหม่…" (UI.prompt → POST /brands); หน้าสินค้า: ตัวกรองหมวดหลัก; export: groups/brands ใน SPECS products/settings, EXPORT_OPEN และ TABLE_LABEL
+
 ### B7. ข้อจำกัดที่รับทราบ
 - LINE / Facebook / Shopee / Lazada / TikTok เป็นการจำลอง ยังไม่เชื่อม API จริง
 - เครื่องพิมพ์ใบเสร็จผ่านการพิมพ์ของเบราว์เซอร์ ไม่เชื่อมลิ้นชักเงินสด
