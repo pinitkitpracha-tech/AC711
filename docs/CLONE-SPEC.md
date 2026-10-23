@@ -91,6 +91,12 @@ git add -A && git commit -m "New brand" && git remote add origin https://github.
 - กฎข้อมูลรถ: เพิ่มรถต้องมี VIN; ใบเสนอราคา/ใบรับรถ/งานเคลมต้องมีเลขไมล์ และรถต้องมี VIN; VIN + เลขไมล์พิมพ์บนใบเสนอราคา ใบรับรถ ใบเสร็จ (ย่อ/A4) และใบรับงานเคลม
 - เมนู claims (แท็บ open/all/supplier) ตัวนับ claimsOpen, SSE claim, สิทธิ์เพิ่มให้บทบาทเดียวกับ jobs, ส่งออก CSV ตาราง claims, ประเภทการเคลื่อนไหวสต็อก warranty
 
+### B10. ภาษาหน้าจอ 3 ภาษา และสกุลเงินของร้าน
+- I18N_DICT: อาร์เรย์ [ไทย, English, ລາວ] ~440 รายการ (เมนู แท็บ ปุ่ม สถานะ ป้ายฟอร์ม หน้าเว็บไซต์) + I18N (lang ใน localStorage ac711_lang, build/t/text/apply) แปลข้อความใน DOM ด้วย TreeWalker + MutationObserver (childList/characterData/placeholder/title) ข้อความที่มีตัวเลขปนจะแปลเฉพาะเมื่อทุกช่วงข้อความไทยอยู่ในพจนานุกรม จึงไม่แปลชื่อสินค้า/ลูกค้า; ตัวเลือก `#langpick` (I18N.pick) ที่ topbar, nav เว็บไซต์ และหน้า auth เปลี่ยนแล้ว reload
+- amountWords(n) แทน thaiBaht: ตัวอักษรจำนวนเงินตามภาษา (ไทย/อังกฤษ/ลาว) และหน่วยสกุลเงิน (thaiBaht ยังเป็น alias)
+- CURRENCIES {THB ฿ บาท 0 ทศนิยม, LAK ₭ กีบ 0, USD $ ดอลลาร์ 2, CNY ¥ หยวน 2}; CUR/setCurrency; money() ฝั่งหน้าเว็บและ money()/CURI() ฝั่ง backend อ่าน settings.currency; GET /auth/me (ทั้ง mock และ server.js) คืน currency; ตั้งค่าที่ ตั้งค่า → ร้าน `#currency` (PUT /settings) และ setCurrency ทันทีหลังบันทึก; ป้ายราคาสินค้าในฟอร์มแสดงชื่อสกุลเงิน; PromptPay ที่ POS แสดงเฉพาะ THB; ข้อความ "บาท" ในแอป/การแจ้งเตือนใช้ CUR.name (ยกเว้นค่าบริการรายปี AC711)
+- CSS มือถือ (≤47.5em): .tile สูงอัตโนมัติ ข้อความในการ์ดสาขา/หัวการ์ด/หัวหน้าขึ้นบรรทัดใหม่แทน ellipsis; nav เว็บไซต์ ≤30em ซ่อนปุ่มเข้าสู่ระบบ (มีในส่วน hero)
+
 ### B7. ข้อจำกัดที่รับทราบ
 - LINE / Facebook / Shopee / Lazada / TikTok เป็นการจำลอง ยังไม่เชื่อม API จริง
 - เครื่องพิมพ์ใบเสร็จผ่านการพิมพ์ของเบราว์เซอร์ ไม่เชื่อมลิ้นชักเงินสด

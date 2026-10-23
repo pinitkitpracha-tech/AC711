@@ -46,6 +46,7 @@ const ok = (name, cond, extra = '') => { assert.ok(cond, name + (extra ? ' — '
     ok('verify token single-use', (await api('POST', '/api/platform/verify', { t: vt })).status === 400);
     const lg = await api('POST', '/api/ac711/auth/login', { username: email, password: pw }); ok('login new tenant', lg.status === 200 && lg.d.user.plan.status === 'trial' && lg.d.user.tenant_code === code);
     const tk = lg.d.token;
+    { const me0 = await api('GET', '/api/ac711/auth/me', null, tk); ok('new tenant defaults to THB', me0.d.currency === 'THB', JSON.stringify(me0.d.currency)); const pc = await api('PUT', '/api/ac711/settings', { currency: 'LAK' }, tk); const me1 = await api('GET', '/api/ac711/auth/me', null, tk); ok('store currency saved and returned by /auth/me', pc.status === 200 && me1.d.currency === 'LAK', JSON.stringify(me1.d.currency)); }
     const br = (await api('GET', '/api/ac711/branches', null, tk)).d; ok('fresh tenant: HQ + 1 branch + online', br.length === 3 && br[0].code === '0000');
     ok('fresh tenant has no products', (await api('GET', '/api/ac711/products', null, tk)).d.length === 0);
     ok('fresh tenant forecast works', (await api('GET', '/api/ac711/forecast/top?limit=5', null, tk)).status === 200);

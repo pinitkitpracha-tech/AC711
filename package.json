@@ -1,6 +1,6 @@
 {
   "name": "ac711-cloud",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "description": "AC711 — ระบบบริหารร้านอะไหล่รถยนต์และสาขาบนคลาวด์ (เซิร์ฟเวอร์หลายร้าน)",
   "main": "server.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "test": "node scripts/build.js && node tests/smoke.js"
   },
   "engines": {
-    "node": ">=22.13"
+    "node": ">=22.5"
   },
   "license": "UNLICENSED",
   "private": true,
