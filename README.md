@@ -1,54 +1,55 @@
-# AC711 Cloud — ระบบบริหารร้านอะไหล่รถยนต์และสาขาบนคลาวด์ (www.ac711.com)
+# AC711 Cloud — เซิร์ฟเวอร์สำหรับ www.ac711.com
 
-หลายร้านในเซิร์ฟเวอร์เดียว ค่าบริการรายปี 18,000 บาท ไม่รวม VAT ทดลองใช้ฟรี 30 วัน
+ระบบบริหารร้านอะไหล่รถยนต์และสาขาแบบคลาวด์ (หลายร้านในเซิร์ฟเวอร์เดียว) ค่าบริการรายปี 18,000 บาท ไม่รวม VAT
 
-- รองรับทั้งร้านอะไหล่และอู่ซ่อมรถ: ใบเสนอราคา ใบรับรถ ใบเสร็จพร้อมเงื่อนไขรับประกัน/นัดบริการครั้งถัดไป ทะเบียนรถลูกค้าหลายคัน (บังคับ VIN/เลขไมล์) งานรับประกัน/เคลมพร้อมเคลมต่อผู้จำหน่าย และ CRM ติดตามลูกค้า (ดู docs/USER-GUIDE.md หัวข้อ 10–11)
-- หน้าจอ 3 ภาษา (ไทย / English / ລາວ) เลือกได้ที่แถบบน และสกุลเงินของร้าน บาท / กีบ / ดอลลาร์ / หยวน ตั้งที่ ตั้งค่า → ร้าน (ดู docs/USER-GUIDE.md หัวข้อ 12)
-- ตั้งค่าสินค้า: หมวดสินค้าหลักและยี่ห้อสินค้าที่ผู้ใช้สร้างเอง เลือกใช้ในฟอร์มสินค้าและตัวกรองหน้าสินค้า (ดู docs/USER-GUIDE.md หัวข้อ 13)
-- หน้าเว็บ + API ของร้านทั้งหมดมาจากไฟล์เดียว `ac711.html` ที่ root (เปิดไฟล์นี้ตรง ๆ = โหมดสาธิตในเบราว์เซอร์) แก้ฟีเจอร์ที่ไฟล์นั้นแล้ว `npm run build`
+- หน้าเว็บ + API ของร้านทั้งหมดมาจากไฟล์เดียว `../ac711.html` (แก้ฟีเจอร์ที่ไฟล์นั้น แล้ว `npm run build`)
 - เซิร์ฟเวอร์ Node.js 22 + Express + SQLite ในตัว (`node:sqlite`) ไม่ต้องติดตั้งฐานข้อมูลแยก
 - โฟลเดอร์ข้อมูล `DATA_DIR` เก็บ `platform.db` (ผู้ใช้บริการ การชำระเงิน ใบกำกับภาษี บันทึกการใช้งาน ข้อมูลของทุกร้าน) และ `uploads/` (รูปสินค้า/สลิป)
 
 ## 1. รันบนเครื่องตัวเอง (ทดสอบ)
 
 ```bash
+cd ac711
 npm install
-npm run build        # สร้าง public/index.html และ build/tenant-api.js จาก ac711.html
+npm run build        # สร้าง public/index.html และ build/tenant-api.js จาก ../ac711.html
 cp .env.example .env # แก้ค่าตามต้องการ (ไม่มี .env ก็รันได้ในโหมดทดสอบ)
 npm start            # http://localhost:3000
-npm test             # ชุดทดสอบอัตโนมัติ 62 ข้อ (ใช้ฐานข้อมูลชั่วคราว)
+npm test             # ชุดทดสอบอัตโนมัติ 50 ข้อ (ใช้ฐานข้อมูลชั่วคราว)
 ```
 
-บัญชีทดลอง: หน้าเว็บ → เข้าสู่ระบบ `owner` / `ac1234` (ร้านสาธิตใช้ร่วมกันทุกคน อยู่ในหน่วยความจำ รีเซ็ตทุก 24 ชม. และห้ามแก้พนักงาน/ตั้งค่า/ลบข้อมูล) · Admin Console ที่ `/#/admin` ค่าเริ่มต้น `admin` / `admin711` (ใน production ต้องตั้ง `ADMIN_PASSWORD` ไม่เช่นนั้นระบบไม่ให้เข้า)
+บัญชีทดลอง: หน้าเว็บ → เข้าสู่ระบบ `owner` / `ac1234` (ร้านสาธิตใช้ร่วมกันทุกคน อยู่ในหน่วยความจำ รีเซ็ตทุก 24 ชม. และห้ามแก้พนักงาน/ตั้งค่า/ลบข้อมูล) · Admin Console ที่ `/#/admin` ค่าเริ่มต้น `admin` / `admin711` (เปลี่ยนด้วย `ADMIN_PASSWORD` ก่อนเปิดใช้จริง)
 
 เมื่อยังไม่ตั้งค่า SMTP ระบบจะ **แสดงอีเมลบนหน้าจอ** (รหัสผ่านและปุ่มยืนยัน) แทนการส่งจริง เพื่อให้ทดสอบครบวงจรได้
 
 ## 2. Deploy ขึ้น Render (แนะนำ วิธีที่ง่ายที่สุด)
 
 1. Push รีโปนี้ขึ้น GitHub สาขา `main`
-2. Render Dashboard → **New → Blueprint** → เลือกรีโป → Apply (ใช้ไฟล์ `render.yaml` ที่ root)
-3. ตอน Apply กรอกค่าที่ต้องตั้งเอง: `ADMIN_PASSWORD`, `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` (ค่าอื่นตั้งไว้ให้แล้ว รวมถึง `JWT_SECRET` ที่ Render สุ่มให้และ disk 5 GB ที่ `/var/data`)
-4. รอ build/deploy เสร็จ เปิด URL ของ Render ทดสอบสมัคร-ยืนยัน-เข้าสู่ระบบ
-5. ชี้โดเมน: Render → Settings → Custom Domains → เพิ่ม `www.ac711.com` และ `ac711.com` แล้วตั้ง DNS ตามที่ Render บอก (CNAME `www` → โฮสต์ของ Render, A/ALIAS สำหรับ root) Render ออกใบรับรอง HTTPS ให้อัตโนมัติ
-6. ตั้ง `BASE_URL` ให้เป็น `https://www.ac711.com` (ใช้ในลิงก์อีเมล) แล้วรอ redeploy
+2. Render Dashboard → **New → Blueprint** → เลือกรีโป → Apply (ใช้ไฟล์ `render.yaml` ที่ root ซึ่งมีบริการชื่อ `ac711` rootDir `ac711`)
+3. ตั้งค่าใน Dashboard ของบริการ `ac711` → Environment: `ADMIN_PASSWORD`, `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` (ค่าอื่นตั้งไว้ให้แล้ว รวมถึง `JWT_SECRET` ที่ Render สุ่มให้และ disk 5 GB ที่ `/var/data`)
+4. รอ build/deploy เสร็จ เปิด URL `https://ac711.onrender.com` ทดสอบสมัคร-ยืนยัน-เข้าสู่ระบบ
+5. ชี้โดเมน: Render → Settings → Custom Domains → เพิ่ม `www.ac711.com` และ `ac711.com` แล้วตั้ง DNS ตามที่ Render บอก (CNAME `www` → `ac711.onrender.com`, A/ALIAS สำหรับ root) Render ออกใบรับรอง HTTPS ให้อัตโนมัติ
+6. แก้ `BASE_URL` ให้เป็น `https://www.ac711.com` (ใช้ในลิงก์อีเมล) แล้ว redeploy
 
 แผน Starter ขึ้นไปจำเป็น เพราะต้องมี Persistent Disk (แผนฟรีข้อมูลหายเมื่อ redeploy)
 
 ## 3. Deploy บน VPS / คลาวด์อื่นด้วย Docker
 
 ```bash
-docker build -t ac711 .
+# ที่ root ของรีโป (Dockerfile ต้องเห็น ac711.html)
+docker build -f ac711/Dockerfile -t ac711 .
 docker run -d --name ac711 --restart unless-stopped -p 3000:3000 \
-  -v ac711-data:/var/data --env-file .env ac711
+  -v ac711-data:/var/data --env-file ac711/.env ac711
 ```
 
-วาง reverse proxy (Nginx/Caddy) หน้าเซิร์ฟเวอร์เพื่อทำ HTTPS แล้วตั้ง `TRUST_PROXY=1` ตัวอย่าง Caddy:
+วาง reverse proxy (Nginx/Caddy) หน้าเซิร์ฟเวอร์เพื่อทำ HTTPS ตัวอย่าง Caddy:
 
 ```
 www.ac711.com, ac711.com {
   reverse_proxy 127.0.0.1:3000
 }
 ```
+
+เซิร์ฟเวอร์เชื่อถือ header `X-Forwarded-*` จาก proxy 1 ชั้น (`trust proxy = 1`) เพื่อจำกัดอัตราตาม IP จริง
 
 ## 4. ตัวแปรแวดล้อม
 
@@ -59,7 +60,8 @@ www.ac711.com, ac711.com {
 | `JWT_SECRET` | ข้อความลับสำหรับโทเคนเข้าสู่ระบบ **ต้องตั้ง** และห้ามเปลี่ยนโดยไม่จำเป็น |
 | `DATA_DIR` | โฟลเดอร์ฐานข้อมูลและรูป (บนเซิร์ฟเวอร์ใช้ `/var/data`) |
 | `TRUST_PROXY` | ตั้ง `1` เมื่ออยู่หลัง reverse proxy (Render/Nginx/Caddy) เพื่อให้จำกัดอัตราตาม IP จริง ถ้าเปิดพอร์ต Node ตรง ๆ ให้ปล่อยว่าง |
-| `ADMIN_USER` / `ADMIN_PASSWORD` | บัญชี Admin Console (ต่อจากนั้นเปลี่ยนในหน้า ตั้งค่าแอดมิน) |
+| `ADMIN_USER` / `ADMIN_PASSWORD` | บัญชี Admin Console ตอนสร้างฐานข้อมูลครั้งแรก (ต่อจากนั้นเปลี่ยนในหน้า ตั้งค่าแอดมิน) |
+| `ADMIN_RESET` | ตั้งเป็น `1` ร่วมกับ `ADMIN_PASSWORD` เพื่อบังคับรีเซ็ตรหัสผ่าน Admin Console ตอนเซิร์ฟเวอร์เริ่ม (ใช้เมื่อลืมรหัส) เข้าสู่ระบบได้แล้วให้ลบตัวแปรนี้ออก |
 | `SMTP_HOST` `SMTP_PORT` `SMTP_SECURE` `SMTP_USER` `SMTP_PASS` `MAIL_FROM` | ส่งอีเมลจริง (Gmail ใช้ App Password, หรือ Brevo/SES/Mailgun) ไม่ตั้ง = โหมดทดสอบ |
 | `ANTHROPIC_API_KEY` `AI_MODEL` | ผู้ช่วย AI ใช้ Claude จริง (ไม่ใส่ = คำตอบจำลอง) |
 | `SAVE_DELAY_MS` | หน่วงเวลาบันทึกข้อมูลร้านหลังการเขียน (ค่าเริ่มต้น 1500) |
@@ -76,22 +78,21 @@ www.ac711.com, ac711.com {
 
 ## 6. สำรองข้อมูล
 
-- คัดลอกโฟลเดอร์ `DATA_DIR` ทั้งหมด (ไฟล์ `platform.db*` และ `uploads/`) เป็นประจำ หรือเปิด Disk Snapshots ของ Render
-- เจ้าของร้านแต่ละร้านส่งออก/กู้คืนข้อมูลของตัวเองเป็น JSON ได้ที่ ตั้งค่าร้าน
+- คัดลอกโฟลเดอร์ `DATA_DIR` ทั้งหมด (ไฟล์ `platform.db*` และ `uploads/`) เป็นประจำ เช่น cron รายวัน `sqlite3 /var/data/platform.db ".backup /backup/platform-$(date +%F).db"` หรือ snapshot disk ของผู้ให้บริการคลาวด์
+- เจ้าของร้านแต่ละร้านส่งออก/กู้คืนข้อมูลของตัวเองเป็น JSON ได้ที่ ตั้งค่าร้าน → ส่งออกข้อมูลทั้งหมด / กู้คืนจากไฟล์สำรอง
 - แอดมินส่งออกรายชื่อผู้ใช้บริการและการชำระเงินได้ที่ ตั้งค่าแอดมิน
 
 ## 7. โครงสร้างโค้ด
 
 ```
-ac711.html           แหล่งเดียวของหน้าเว็บและ API ของร้าน (เปิดเดี่ยวได้เป็นโหมดสาธิต)
-server.js            เว็บเซิร์ฟเวอร์ + API ฝั่งผู้ให้บริการ (/api/platform) + API ของร้าน (/api/ac711)
-scripts/build.js     สร้าง build/tenant-api.js และ public/index.html จาก ac711.html
-src/platform.js      SQLite: ผู้ใช้บริการ ผู้ใช้ การชำระเงิน ใบกำกับภาษี บันทึกการใช้งาน เนื้อหาเว็บ แอดมิน ข้อมูลร้าน
-src/tenants.js       รันไทม์ข้อมูลร้านต่อผู้เช่า (โหลด/บันทึกอัตโนมัติ, SSE แจ้งเตือนเรียลไทม์)
-src/mail.js          เทมเพลตอีเมล + ส่งผ่าน SMTP หรือโหมดทดสอบ
-src/cron.js          เตือนหมดอายุ, ลบผู้สมัครที่ไม่ยืนยัน, รีเซ็ตร้านสาธิต
-src/ai.js            ผู้ช่วย AI ผ่าน Claude
-src/site-defaults.json  เนื้อหาเว็บไซต์เริ่มต้น (แก้ได้จาก Admin Console)
-tests/smoke.js       ชุดทดสอบครบวงจร
-docs/                คู่มือผู้ใช้ฉบับเต็ม PDF (AC711-Manual-1.0.26.pdf) คู่มือย่อ (USER-GUIDE.md) และแนวทางระบบ (AC711-CLOUD.md)
+ac711/
+  server.js            เว็บเซิร์ฟเวอร์ + API ฝั่งผู้ให้บริการ (/api/platform) + API ของร้าน (/api/ac711)
+  scripts/build.js     สร้าง build/tenant-api.js และ public/index.html จาก ../ac711.html
+  src/platform.js      SQLite: ผู้ใช้บริการ ผู้ใช้ การชำระเงิน ใบกำกับภาษี บันทึกการใช้งาน เนื้อหาเว็บ แอดมิน ข้อมูลร้าน
+  src/tenants.js       รันไทม์ข้อมูลร้านต่อผู้เช่า (โหลด/บันทึกอัตโนมัติ, SSE แจ้งเตือนเรียลไทม์)
+  src/mail.js          เทมเพลตอีเมล + ส่งผ่าน SMTP หรือโหมดทดสอบ
+  src/cron.js          เตือนหมดอายุ, ลบผู้สมัครที่ไม่ยืนยัน
+  src/ai.js            ผู้ช่วย AI ผ่าน Claude
+  src/site-defaults.json  เนื้อหาเว็บไซต์เริ่มต้น (แก้ได้จาก Admin Console)
+  tests/smoke.js       ชุดทดสอบครบวงจร
 ```

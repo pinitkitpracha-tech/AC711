@@ -88,7 +88,8 @@ function pruneUsage(days = 400) { return db.prepare("DELETE FROM usage WHERE ts 
 function clearUsage() { db.exec('DELETE FROM usage'); }
 
 /* ---------- แอดมิน ---------- */
-function ensureAdmin() { const r = db.prepare('SELECT * FROM admins').get(); if (!r) { db.prepare('INSERT INTO admins (user, password_hash) VALUES (?, ?)').run(process.env.ADMIN_USER || 'admin', hash(process.env.ADMIN_PASSWORD || 'admin711')); return; } if (process.env.ADMIN_PASSWORD && verify('admin711', r.password_hash)) setAdmin(process.env.ADMIN_USER || r.user, process.env.ADMIN_PASSWORD); if (!process.env.ADMIN_PASSWORD && verify('admin711', r.password_hash)) console.warn('⚠ Admin Console ยังใช้รหัสผ่านค่าเริ่มต้น admin711 — ตั้ง ADMIN_PASSWORD ก่อนเปิดใช้จริง'); }
+function ensureAdmin() { const r = db.prepare('SELECT * FROM admins').get(); if (!r) { db.prepare('INSERT INTO admins (user, password_hash) VALUES (?, ?)').run(process.env.ADMIN_USER || 'admin', hash(process.env.ADMIN_PASSWORD || 'admin711')); return; } if (process.env.ADMIN_RESET === '1' && process.env.ADMIN_PASSWORD) { setAdmin(process.env.ADMIN_USER || r.user, process.env.ADMIN_PASSWORD); console.warn('⚠ ADMIN_RESET=1: รีเซ็ตรหัสผ่าน Admin Console เป็นค่าใน ADMIN_PASSWORD แล้ว — ลบตัวแปร ADMIN_RESET ออกทันทีหลังเข้าสู่ระบบได้'); return; }
+  if (process.env.ADMIN_PASSWORD && verify('admin711', r.password_hash)) setAdmin(process.env.ADMIN_USER || r.user, process.env.ADMIN_PASSWORD); if (!process.env.ADMIN_PASSWORD && verify('admin711', r.password_hash)) console.warn('⚠ Admin Console ยังใช้รหัสผ่านค่าเริ่มต้น admin711 — ตั้ง ADMIN_PASSWORD ก่อนเปิดใช้จริง'); }
 function adminCheck(user, pw) { const r = db.prepare('SELECT * FROM admins WHERE user = ?').get(String(user || '').trim()); return !!(r && verify(pw, r.password_hash)); }
 function setAdmin(user, pw) { db.exec('DELETE FROM admins'); db.prepare('INSERT INTO admins (user, password_hash) VALUES (?, ?)').run(user || 'admin', hash(pw)); }
 

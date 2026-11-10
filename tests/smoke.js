@@ -15,8 +15,8 @@ const DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'ac711-test-'));
 const ENV = { ...process.env, PORT: String(PORT), DATA_DIR, JWT_SECRET: 'smoke-test-secret', ADMIN_PASSWORD: 'admin711', BASE_URL: S, SAVE_DELAY_MS: '100' };
 let proc = null; let passed = 0;
 
-const start = () => new Promise((res, rej) => {
-  proc = spawn(process.execPath, [path.join(__dirname, '..', 'server.js')], { env: ENV, stdio: ['ignore', 'pipe', 'pipe'] });
+const start = (extraEnv = {}) => new Promise((res, rej) => {
+  proc = spawn(process.execPath, [path.join(__dirname, '..', 'server.js')], { env: { ...ENV, ...extraEnv }, stdio: ['ignore', 'pipe', 'pipe'] });
   let out = ''; proc.stdout.on('data', d => { out += d; if (/Cloud: http/.test(out)) res(); }); proc.stderr.on('data', d => { const s = String(d); if (!/ExperimentalWarning|trace-warnings/.test(s)) process.stderr.write(s); });
   proc.on('exit', c => { if (c) rej(new Error('server exited ' + c)); });
   setTimeout(() => rej(new Error('server start timeout')), 20000);
@@ -123,6 +123,14 @@ const ok = (name, cond, extra = '') => { assert.ok(cond, name + (extra ? ' — '
     // admin
     const ad = await api('POST', '/api/platform/admin/login', { user: 'admin', password: 'admin711' }); ok('admin login', ad.status === 200); const at = ad.d.token;
     ok('admin login wrong password', (await api('POST', '/api/platform/admin/login', { user: 'admin', password: 'x' })).status === 401);
+    // ลืมรหัสแอดมิน: เปลี่ยนรหัสในคอนโซล แล้วบังคับรีเซ็ตด้วย ADMIN_RESET=1 + ADMIN_PASSWORD ตอนเริ่มเซิร์ฟเวอร์
+    ok('admin can change own password', (await api('PUT', '/api/platform/admin/password', { password: 'forgotten-pass-99' }, at)).status === 200);
+    ok('old admin password rejected after change', (await api('POST', '/api/platform/admin/login', { user: 'admin', password: 'admin711' })).status === 401);
+    await stop(); await start({ ADMIN_RESET: '1', ADMIN_PASSWORD: 'recovered-pass-12' });
+    ok('ADMIN_RESET=1 forces the admin password to ADMIN_PASSWORD', (await api('POST', '/api/platform/admin/login', { user: 'admin', password: 'recovered-pass-12' })).status === 200);
+    await stop(); await start();
+    ok('without ADMIN_RESET the recovered password is kept (env ADMIN_PASSWORD does not override)', (await api('POST', '/api/platform/admin/login', { user: 'admin', password: 'recovered-pass-12' })).status === 200);
+    { const ad2 = await api('POST', '/api/platform/admin/login', { user: 'admin', password: 'recovered-pass-12' }); ok('restore admin password for remaining checks', (await api('PUT', '/api/platform/admin/password', { password: 'admin711' }, ad2.d.token)).status === 200); }
     const tl = (await api('GET', '/api/platform/admin/tenants', null, at)).d; const t = tl.find(x => x.code === code); ok('admin sees tenant', !!t && !tl.some(x => x.id === 'demo'));
     ok('admin lock', (await api('POST', `/api/platform/admin/tenants/${t.id}/lock`, {}, at)).status === 200);
     const locked = await api('GET', '/api/ac711/products', null, tk2); ok('locked tenant gets 402 with plan', locked.status === 402 && locked.d.plan && locked.d.plan.status === 'locked');
